@@ -111,7 +111,24 @@
                         alert('통신실패!!');
                     },
                     success : function(data){
-                        $("#checkedBlock").html(data.block);
+                        $("#checkedBlock").html(data);
+                    }
+                });
+            });
+
+            $('#checkTransaction_btn').click(function(){
+                $.ajax({
+                    type : "GET",
+                    url : "/checkTransaction",
+                    data : {
+                        blockHash : $("#checktransaction_hash").innerText
+                    },
+                    dataType : "json",
+                    error : function(){
+                        alert('통신실패!!');
+                    },
+                    success : function(data){
+                        $("#checkedTransaction").html(data);
                     }
                 });
             });
