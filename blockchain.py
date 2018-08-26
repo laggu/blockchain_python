@@ -18,7 +18,10 @@ class BlockChain:
         self.chain.append(genesis_block)
 
     def make_transaction(self, value, receiver_address, sender_address, sender_private_key):
-        transaction = Transaction(self.chain, value, receiver_address, sender_address, sender_private_key)
+        try:
+            transaction = Transaction(self.chain, value, receiver_address, sender_address, sender_private_key)
+        except Exception as e:
+            return str(e)
         self.tx_pool.append(transaction)
         return transaction.hash
 

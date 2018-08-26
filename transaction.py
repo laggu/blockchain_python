@@ -24,6 +24,8 @@ class TxIn:
             del temp['sign']
         return temp
 
+    def __eq__(self, other):
+        return self.hash == other.hash and self.n == other.n
 
 class TxOut:
     def __init__(self, receiver_address, value):
@@ -114,8 +116,6 @@ class Transaction:
             tx_in.pubk = bitcoin.privkey_to_pubkey(priv)
             digest = bitcoin.sha256(str(tx_in))
             tx_in.sign = bitcoin.ecdsa_sign(digest, priv)
-            print("tx_in-sign : ", tx_in)
-            print(tx_in.hash)
 
     def __str__(self):
         return json.dumps(self, default=self.to_dict, sort_keys=True, indent=4)

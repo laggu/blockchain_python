@@ -33,8 +33,22 @@ class Block:
             except:
                 raise Exception('트랜잭션 검증 실패')
 
+        txin_list = []
+        double_used_tx_list = []
+        for tx in self.transactions:
+            for txin in tx.inputs:
+                if txin not in txin_list:
+                    txin_list.append(txin)
+                else:
+                    double_used_tx_list.append(tx)
+                    break
 
+        print("self.transaction",self.transactions)
+        print("double_used_tx_list",double_used_tx_list)
 
+        for tx in double_used_tx_list:
+            self.transactions.remove(tx)
+        print("self.transaction", self.transactions)
 
 
         self.gen_mrkl_root()
