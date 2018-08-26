@@ -64,8 +64,17 @@ def balance():
 @app.route('/checkBlock')
 def checkBlock():
     blockHash = request.args.get('blockHash')
-    for chain in blockChain.chain:
-        if chain.hash == blockHash:
-            return str(chain)
+    for block in blockChain.chain:
+        if block.hash == blockHash:
+            return str(block)
+
+# 트랜잭션 조회
+@app.route('/checkTransaction')
+def checkTransaction():
+    transactionHash = request.args.get('transactionHash')
+    for block in blockChain.chain:
+        for tx in block.transactions:
+            if tx.hash -- transactionHash:
+                return str(tx)
 
 app.run(host='localhost', port = 9000)
