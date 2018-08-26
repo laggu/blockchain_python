@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>TEAM20's - Block Chain</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='vendor/font-awesome/css/font-awesome.min.css') }}" rel="stylesheet" type="text/css">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
+
+    <!-- Plugin CSS -->
+    <link href="{{ url_for('static', filename='vendor/magnific-popup/magnific-popup.css') }}" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="{{ url_for('static', filename='css/creative.min.css') }}" rel="stylesheet">
+
+    <!-- JQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#generatekey_btn').click(function(){
+                $.ajax({
+                    type : "GET",
+                    url : "/generatekey",
+                    data : {
+                        keyword :  document.getElementById("keyword").value
+                    },
+                    dataType : "json",
+                    error : function(){
+                        alert('통신실패!!');
+                    },
+                    success : function(data){
+                        $("#mypriv").html(data.mypriv);
+                        $("#mypubl").html(data.mypubl);
+                        $("#myaddress").html(data.myaddress);
+                        $("#message").html("위 주소를 꼭 따로 메모해두세요!");
+                    }
+                });
+            })
+
+            $('#mining_btn').click(function(){
+                $.ajax({
+                    type : "GET",
+                    url : "/mining",
+                    data : {
+                        minerAddress : document.getElementById("minerAddress").value
+                    },
+                    dataType : "json",
+                    error : function(){
+                        alert('통신실패!!');
+                    },
+                    success : function(data){
+                        $("#blockhash").html(data.blockhash) ;
+                    }
+                });
+            });
+
+            $('#transaction_btn').click(function(){
+                $.ajax({
+                    type : "GET",
+                    url : "/transaction",
+                    data : {
+                        senderAddress : document.getElementById("senderAddress").value,
+                        receiverAddress : document.getElementById("receiverAddress").value,
+                        value : document.getElementById("value").value,
+                        senderPriv : document.getElementById("senderPriv").value,
+                    },
+                    dataType : "json",
+                    error : function(){
+                        alert('통신실패!!');
+                    },
+                    success : function(data){
+                        $("#txhash").html(data.txhash) ;
+                    }
+                });
+            });
+
+            $('#balance_btn').click(function(){
+                $.ajax({
+                    type : "GET",
+                    url : "/balance",
+                    data : {
+                        balance : document.getElementById("address").value
+                    },
+                    dataType : "json",
+                    error : function(){
+                        alert('통신실패!!');
+                    },
+                    success : function(data){
+                        $("#balance").html(data.balance) ;
+                    }
+                });
+            });
+
+            $('#checkBlock_btn').click(function(){
+                $.ajax({
+                    type : "GET",
+                    url : "/checkBlock",
+                    data : {
+                        blockHash : $("#checkblock_hash").innerText
+                    },
+                    dataType : "json",
+                    error : function(){
+                        alert('통신실패!!');
+                    },
+                    success : function(data){
+                        $("#checkedBlock").html(data.block);
+                    }
+                });
+            });
+        })
+    </script>
+    <style>
+        a,a:hover{
+            color:#0100FF;
+        }
+        hr{
+            border-color:#002187;
+        }
+        .bg-primary{
+            background-color:#003399!important;
+        }
+
+        #mainNav .navbar-brand{
+            color:#0100FF;
+        }
+        #mainNav .navbar-brand:focus{
+            color:#0100FF;
+        }
+        #mainNav .navbar-brand:hover{
+            color:#0100FF;
+        }
+        #mainNav .navbar-nav>li.nav-item>a.nav-link:focus:hover,#mainNav .navbar-nav>li.nav-item>a.nav-link:hover{
+            color:#003399;
+        }
+        #mainNav .navbar-nav>li.nav-item>a.nav-link.active{
+            color:#0100FF!important;
+        }
+        #mainNav .navbar-nav>li.nav-item>a.nav-link:focus.active{
+            color:#0100FF!important;
+        }
+        #mainNav.navbar-shrink .navbar-brand{
+            color:#002187;
+        }
+        #mainNav.navbar-shrink .navbar-brand:focus{
+            color:#002187;
+        }
+        #mainNav.navbar-shrink .navbar-brand:hover{
+            color:#002187;
+        }
+        #mainNav.navbar-shrink .navbar-nav>li.nav-item>a.nav-link:focus:hover{
+            color:#002187;
+        }
+        .btn-primary {
+            background-color: #002187;
+            border-color: #002187;
+        }
+        #mainNav.navbar-shrink .navbar-nav>li.nav-item>a.nav-link:hover{
+            color:#002187;
+        }
+        .btn-primary:active,.btn-primary:focus,.btn-primary:hover{
+            background-color:#003399!important;
+        }
+
+        #header_bg{
+            background-image: url({{ url_for ('static', filename = 'img/bg.jpg') }});
+        }
+
+    </style>
+
+  </head>
+
+  <body id="page-top">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
+      <div class="container">
+        <a class="navbar-brand js-scroll-trigger" href="#page-top">BLOCK CHAIN</a>
+        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link js-scroll-trigger" href="#about">키 생성하기</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link js-scroll-trigger" href="#services">블록 생성하기</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link js-scroll-trigger" href="#portfolio">거래하기</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link js-scroll-trigger" href="#contact">잔액조회</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <header class="masthead text-center text-white d-flex" id = "header_bg">
+      <div class="container my-auto">
+        <div class="row">
+          <div class="col-lg-10 mx-auto">
+            <h1 class="text-uppercase">
+              <strong>세계와 암호화폐를 연결합니다</strong>
+            </h1>
+            <hr>
+          </div>
+          <div class="col-lg-8 mx-auto">
+            <p class="text-faded mb-5">디지털 화폐를 보내고, 받고, 저장하고, 거래하는 쉬운 방법</p>
+            <a class="btn btn-primary btn-xl js-scroll-trigger" href="#about">키 생성하기</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+   <!-- first card -->
+   <!-- generatekey part -->
+    <section class="bg-primary" id="about">
+      <div class="container" id="generatekey">
+        <div class="row">
+          <div class="col-lg-12 mx-auto text-center">
+            <h2 class="section-heading text-white" style="margin-top:-5%;">키를 생성해보세요.</h2>
+            <hr class="light my-4">
+           <div class="form-group" id="keyword_container" style="width:100%;">
+             <label for="keyword" style="color:white; display:inline; width:30%;" ><strong>키워드 입력:&nbsp;</strong></label>
+             <input type="text" class="form-control" id="keyword" style="display:inline; width:30%;">
+             <button type="button" class="btn btn-light" id="generatekey_btn" style="display:inline; width:15%;">키 생성</button>
+           </div>
+              <br>
+           <div class="form-group" id="mypriv_container">
+             <label for="mypriv" style="display:block; "><strong>Private Key:</strong></label>
+             <span id="mypriv" style="color:ghostwhite;"></span>
+               <span id="message" style="display:block;color:#DB0000;"></span>
+           </div>
+           <div class="form-group" id="mypubl_container">
+             <label for="mypubl" style="" ><strong>Public Key:</strong></label>
+             <span id="mypubl" style="display:block;color:ghostwhite;"></span>
+           </div>
+           <div class="form-group" id="myaddress_container">
+             <label for="myaddress" style="" ><strong>My Address:</strong></label>
+             <span id="myaddress" style="display:block;color:ghostwhite;"></span>
+           </div>
+              <br>
+            <a class="btn btn-light btn-xl js-scroll-trigger" href="#services">블록 생성하기</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- second card -->
+    <section id="services">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12 text-center">
+            <h2 class="section-heading">블록을 만들어보세요.</h2>
+            <hr class="my-4">
+          </div>
+        </div>
+      </div>
+      <!-- mining part -->
+      <div class="container" id="mining">
+        <div class="row">
+          <div class="col-lg-12 text-center">
+           <div class="form-group" id="minerAddress_container" style="width:100%;">
+             <label for="minerAddress" style="width:20%;color:grey;margin-bottom:1%;"><strong>내 주소 입력: </strong></label>
+             <input type="text" class="form-control" id="minerAddress" style="margin:0 auto;width:60%;">
+           </div>
+              <button type="button" class="btn btn-primary" id="mining_btn" style="margin-top:1%;margin-bottom:2%;width:20%;">블록 생성하기</button>
+           <br>
+           <div class="form-group" id="blockhash_container" style="margin-top:1%;">
+             <label for="blockhash" style="color:grey;display:block;" ><strong>Block Hash 값:</strong></label>
+             <span id="blockhash"></span>
+           </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+   <!-- transaction part -->
+    <section id="portfolio">
+      <div class="container" id="transaction">
+        <div class="row">
+          <div class="col-lg-12 text-center">
+            <h2 class="section-heading" style="margin-top:-10%;">거래를 해보세요.</h2>
+            <hr class="my-4">
+            <form>
+           <div class="form-group" id="senderAddress_container">
+             <label for="senderAddress" style="color:grey;" ><strong>보내는사람(내) 주소:</strong></label>
+             <input type="text" class="form-control" id="senderAddress" style="margin:0 auto;width:60%;">
+           </div>
+           <div class="form-group" id="senderPriv_container">
+             <label for="senderPriv" style="color:grey;" ><strong>내 개인키 입력:</strong></label>
+             <input type="text" class="form-control" id="senderPriv" style="margin:0 auto;width:60%;">
+           </div>
+           <div class="form-group" id="receiverAddress_container">
+             <label for="receiverAddress" style="color:grey;" ><strong>받는사람 주소:</strong></label>
+             <input type="text" class="form-control" id="receiverAddress" style="margin:0 auto;width:60%;">
+           </div>
+           <div class="form-group" id="value_container">
+             <label for="value" style="color:grey;" ><strong>보낼 금액:</strong></label>
+             <input type="text" class="form-control" id="value" style="margin:0 auto;width:60%;">
+           </div>
+
+           <button type="button" class="btn btn-primary" id="transaction_btn" style="margin-top:1%;margin-bottom:2%;width:20%;">보내기</button>
+           <br>
+           <div class="form-group" id="txhash_container">
+             <label for="txhash" style="color:grey;display:block;" ><strong>Transaction Hash값:</strong></label>
+             <span id="txhash"></span>
+           </div>
+         </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+   <!-- balance part -->
+    <section class="bg-dark text-white" id="contact">
+      <div class="container text-center" id="balanceArea">
+        <h2 class="mb-4">잔액을 조회하세요.</h2>
+        <form>
+           <div class="form-group" id="address_container">
+             <label for="address" style="color:white;margin-bottom: 1%;"><strong>내 주소 입력:</strong></label>
+                  <input type="text" class="form-control" id="address" style="margin:0 auto; width:60%;">
+           </div>
+           <button type="button" class="btn btn-light btn-xl js-scroll-trigger" id="balance_btn" style="width:15%; margin-top:1%;">조  회</button>
+           <br>
+           <div class="form-group" id="balance_container">
+             <label for="balance" style="margin-top:2%; color:white;" ><strong>잔 액:</strong></label>
+             <span id="balance"></span>
+           </div>
+         </form>
+      </div>
+    </section>
+
+    <section id="">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 mx-auto text-center">
+            <h2 class="section-heading">Let's Get In Touch!</h2>
+            <hr class="my-4">
+            <p class="mb-5">Ready to start your next project with us? That's great! Give us a call or send us an email and we will get back to you as soon as possible!</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-4 ml-auto text-center">
+            <i class="fa fa-phone fa-3x mb-3 sr-contact"></i>
+            <p>123-456-6789</p>
+          </div>
+          <div class="col-lg-4 mr-auto text-center">
+            <i class="fa fa-envelope-o fa-3x mb-3 sr-contact"></i>
+            <p>
+              <a href="mailto:your-email@your-domain.com">feedback@team20s.com</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="{{ url_for('static', filename='vendor/jquery/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+
+    <!-- Plugin JavaScript -->
+    <script src="{{ url_for('static', filename='vendor/jquery-easing/jquery.easing.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/scrollreveal/scrollreveal.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/magnific-popup/jquery.magnific-popup.min.js') }}"></script>
+
+    <!-- Custom scripts for this template -->
+    <script src="{{ url_for('static', filename='js/creative.min.js') }}"></script>
+
+    <!-- index.js  -->
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+  </body>
+
+</html>
