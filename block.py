@@ -69,3 +69,11 @@ class Block:
         if "hash" in temp:
             del temp['hash']
         return temp
+
+    def mystr(self):
+        return json.dumps(self, default=self.to_mydict, sort_keys=True, indent=4)
+
+    def to_mydict(self,_):
+        if '__dict__' not in dir(_):
+            return str(_)
+        return copy.deepcopy(_.__dict__)

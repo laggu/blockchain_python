@@ -24,6 +24,120 @@
     <!-- JQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script>
+
+    function timeConverter(UNIX_timestamp){
+      var a = new Date(UNIX_timestamp * 1000);
+      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      var year = a.getFullYear();
+      var month = months[a.getMonth()];
+      var date = a.getDate();
+      var hour = a.getHours();
+      var min = a.getMinutes();
+      var sec = a.getSeconds();
+      var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
+      return time;
+    }
+
+    function simplified_transaction(transaction){
+
+        var trans = JSON.parse(transaction)
+
+        var temp =  ''
+
+        temp += "<div class='simple_tx_box'>"
+        temp += "<div><strong>Transaction Hash : </strong></div>";
+        temp += "<div>" + trans["hash"] + "</div>";
+
+        temp += "<br>"
+
+        temp += "<div class='row'>"
+        temp += "<div class='col-sm-3'><strong>TIME</strong></div>"
+        temp += "<div class='col-sm-9'>"+timeConverter(trans["timestamp"])+"</div>"
+        temp += "</div>"
+
+        temp += "<div class='row'>"
+        temp += "<div class='col-sm-3'><strong>FROM</strong></div>"
+        temp += "<div class='col-sm-9'>"+trans["outputs"][1]["to"]+"</div>"
+        temp += "</div>"
+
+        temp += "<div class='row'>"
+        temp += "<div class='col-sm-3'><strong>VALUE</strong></div>"
+        temp += "<div class='col-sm-9'>"+trans["outputs"][0]["value"]+"</div>"
+        temp += "</div>"
+
+        temp += "<div class='row'>"
+        temp += "<div class='col-sm-3'><strong>TO</strong></div>"
+        temp += "<div class='col-sm-9'>"+trans["outputs"][0]["to"]+"</div>"
+        temp += "</div>"
+
+        temp += "<br>"
+        temp += "</div>"
+
+        return temp
+    }
+
+    function print_transaction(transaction){
+
+            var trans = JSON.parse(transaction);
+            var temp = '';
+
+            temp += simplified_transaction(transaction)
+
+            temp += "<div class='transaction_div'>"
+
+            temp += "<div id='input_div_box'>"
+            temp += "<p style='color:black;' ><strong>Inputs[" + trans["vin_sz"] + "]</strong></p>";
+            for(input in trans["inputs"]){
+                temp += "<div class='input_div'>"
+                temp += "<div class='row'>"
+                temp += "<div class='col-sm-4'><strong>ADDRESS</strong></div>"
+                temp += "<div class='col-sm-4'><strong>N</strong></div>"
+                temp += "<div class='col-sm-4'><strong>VALUE</strong></div>"
+                temp += "</div>"
+                temp += "<div class='row'>"
+                temp += "<div class='col-sm-4'>"+trans["inputs"][input]["address"]+"</div>"
+                temp += "<div class='col-sm-4'>"+trans["inputs"][input]["n"]+"</div>"
+                temp += "<div class='col-sm-4'>"+trans["inputs"][input]["value"]+"</div>"
+                temp += "</div>"
+                temp += "<br>"
+                temp += "<div class='row'>"
+                temp += "<div class='col-sm-4'><strong>HASH</strong></div>"
+                temp += "<div class='col-sm-4'><strong>PUBLIC KEY</strong></div>"
+                temp += "<div class='col-sm-4'><strong>SIGN</strong></div>"
+                temp += "</div>"
+                temp += "<div class='row'>"
+                temp += "<div class='col-sm-4'>"+trans["inputs"][input]["hash"]+"</div>"
+                temp += "<div class='col-sm-4'>"+trans["inputs"][input]["pubk"]+"</div>"
+                temp += "<div class='col-sm-4'>"+trans["inputs"][input]["sign"]+"</div>"
+                temp += "</div>"
+                temp += "</div>"
+            }
+            temp += "</div>"
+
+            temp += "<div id='output_div_box'>"
+            temp += "<p style='color:black;' ><strong>outputs[" + trans["vout_sz"] + "]</strong></p>";
+
+            for(output in trans["outputs"]){
+                output = JSON.parse(output)
+                temp += "<div class='output_div'>"
+                temp += "<div class='row'>"
+                temp += "<div class='col-sm-6'>TO</div>"
+                temp += "<div class='col-sm-6'>VALUE</div>"
+                temp += "</div>"
+                temp += "<div class='row'>"
+                temp += "<div class='col-sm-6'>"+trans["outputs"][output]["to"]+"</div>"
+                temp += "<div class='col-sm-6'>"+trans["outputs"][output]["value"]+"</div>"
+                temp += "</div>"
+                temp += "</div>"
+            }
+            temp += "</div>"
+
+            temp += "</div>"
+
+
+            return temp;
+    }
+
         $(document).ready(function(){
             $('#generatekey_btn').click(function(){
                 $.ajax({
@@ -99,42 +213,115 @@
                 });
             });
 
-            $('#checkBlock_btn').click(function(){
+            $('#myblock_btn').click(function(){
                 $.ajax({
                     type : "GET",
                     url : "/checkBlock",
                     data : {
-                        blockHash : $("#checkblock_hash").innerText
+                        myblock_hash : document.getElementById("myblock_hash").value
                     },
                     dataType : "json",
                     error : function(){
                         alert('통신실패!!');
                     },
                     success : function(data){
-                        $("#checkedBlock").html(data);
+                        $("#myblock_info").html("<span>" + data.block + "</span>");
                     }
                 });
             });
 
-            $('#checkTransaction_btn').click(function(){
+            $('#mytransaction_btn').click(function(){
                 $.ajax({
                     type : "GET",
                     url : "/checkTransaction",
                     data : {
-                        blockHash : $("#checktransaction_hash").innerText
+                        mytransaction_hash : document.getElementById("mytransaction_hash").value
                     },
                     dataType : "json",
                     error : function(){
                         alert('통신실패!!');
                     },
                     success : function(data){
-                        $("#checkedTransaction").html(data);
+                        $("#mytransaction_info").html("<span>" + print_transaction(data.transaction) + "</span>");
+                    }
+                });
+            });
+
+            $('#allblock_btn').click(function(){
+                $.ajax({
+                    type : "GET",
+                    url : "/checkAllBlock",
+                    dataType : "json",
+                    error : function(){
+                        alert('통신실패!!');
+                    },
+                    success : function(data){
+
+                        temp = "";
+                        for(i = 0; i < data.n; ++i ){
+
+                            var obj = JSON.parse(data[i]);
+                            temp += "<label style='margin-top:2%; color:white;' ><strong>Block " + String(i+1) + "</strong></label>";
+                            temp += "<div class='block'>"
+                            for(key in obj){
+                              temp += "<div class='row'>"
+                              temp += "<div class='col-sm-3'>" + key.toUpperCase() + "</div>"
+                              temp += "<div class='col-sm-9'>" + obj[key] + "</div>"
+                              temp += "</div>"
+
+
+                            }
+                            temp += "</div>";
+                            $("#allblock_info").html(temp)
+                        }
+
                     }
                 });
             });
         })
+
+
     </script>
     <style>
+
+        .simple_tx_box{
+        padding: 3%;
+        border: 1px black solid;
+        margin-top: 1%;
+        }
+
+        #input_div_box{
+        padding: 1%;
+        border: 1px black solid;
+        margin-top: 2%;
+        }
+
+        .input_div{
+        padding: 3%;
+        border: 1px black solid;
+        margin-top: 1%;
+        }
+
+        .input_div > div{
+        padding-top: 1%;
+        }
+
+        #output_div_box{
+        padding: 1%;
+        border: 1px black solid;
+        margin-top: 2%;
+        }
+
+        .output_div{
+        padding: 3%;
+        border: 1px black solid;
+        margin-top: 1%;
+        }
+
+        .output_div > div{
+        padding-top: 1%;
+        }
+
         a,a:hover{
             color:#0100FF;
         }
@@ -190,6 +377,45 @@
             background-image: url({{ url_for ('static', filename = 'img/bg.jpg') }});
         }
 
+        span, div{
+            word-wrap: break-word;
+        }
+
+        .block{
+            background-color: grey;
+            color: black;
+            width: 60%;
+            margin: 2% auto;
+        }
+
+        #mytransaction_info{
+            width: 60%;
+            margin: 2% auto;
+            border: 1px black solid;
+            padding: 1%;
+        }
+
+        #myblock_info{
+            width: 60%;
+            margin: 2% auto;
+        }
+        #sender_container{
+            width:40%;
+            float: left;
+
+        }
+        #receiver_container{
+            width:40%;
+            float: left;
+        }
+
+        #value_container{
+            width:20%;
+            float: left;
+        }
+
+
+
     </style>
 
   </head>
@@ -216,6 +442,9 @@
             </li>
             <li class="nav-item">
               <a class="nav-link js-scroll-trigger" href="#contact">잔액조회</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link js-scroll-trigger" href="#transactioncheck">거래조회</a>
             </li>
           </ul>
         </div>
@@ -254,16 +483,16 @@
            </div>
               <br>
            <div class="form-group" id="mypriv_container">
-             <label for="mypriv" style="display:block; "><strong>Private Key:</strong></label>
+             <label for="mypriv" style="display:block; color:skyblue"><strong>Private Key:</strong></label>
              <span id="mypriv" style="color:ghostwhite;"></span>
                <span id="message" style="display:block;color:#DB0000;"></span>
            </div>
            <div class="form-group" id="mypubl_container">
-             <label for="mypubl" style="" ><strong>Public Key:</strong></label>
+             <label for="mypubl" style="color:skyblue" ><strong>Public Key:</strong></label>
              <span id="mypubl" style="display:block;color:ghostwhite;"></span>
            </div>
            <div class="form-group" id="myaddress_container">
-             <label for="myaddress" style="" ><strong>My Address:</strong></label>
+             <label for="myaddress" style="color:skyblue" ><strong>My Address:</strong></label>
              <span id="myaddress" style="display:block;color:ghostwhite;"></span>
            </div>
               <br>
@@ -306,34 +535,36 @@
     <section id="portfolio">
       <div class="container" id="transaction">
         <div class="row">
-          <div class="col-lg-12 text-center">
+          <div class="col-lg-12 text-center" style="width:100%">
             <h2 class="section-heading" style="margin-top:-10%;">거래를 해보세요.</h2>
             <hr class="my-4">
-            <form>
-           <div class="form-group" id="senderAddress_container">
-             <label for="senderAddress" style="color:grey;" ><strong>보내는사람(내) 주소:</strong></label>
-             <input type="text" class="form-control" id="senderAddress" style="margin:0 auto;width:60%;">
-           </div>
-           <div class="form-group" id="senderPriv_container">
-             <label for="senderPriv" style="color:grey;" ><strong>내 개인키 입력:</strong></label>
-             <input type="text" class="form-control" id="senderPriv" style="margin:0 auto;width:60%;">
-           </div>
-           <div class="form-group" id="receiverAddress_container">
-             <label for="receiverAddress" style="color:grey;" ><strong>받는사람 주소:</strong></label>
-             <input type="text" class="form-control" id="receiverAddress" style="margin:0 auto;width:60%;">
-           </div>
-           <div class="form-group" id="value_container">
-             <label for="value" style="color:grey;" ><strong>보낼 금액:</strong></label>
-             <input type="text" class="form-control" id="value" style="margin:0 auto;width:60%;">
-           </div>
 
-           <button type="button" class="btn btn-primary" id="transaction_btn" style="margin-top:1%;margin-bottom:2%;width:20%;">보내기</button>
-           <br>
-           <div class="form-group" id="txhash_container">
+            <div class="container" id="tr_container">
+               <div class="form-group" id="sender_container">
+                 <label for="senderAddress" style="color:grey;" ><strong>보내는사람(내) 주소:</strong></label>
+                 <input type="text" class="form-control" id="senderAddress" style="width:100%;margin-bottom: 2%;">
+                 <label for="senderPriv" style="color:grey;" ><strong>내 개인키 입력:</strong></label>
+                 <input type="text" class="form-control" id="senderPriv" style="width:100%;">
+               </div>
+
+                <div class="form-group" id="value_container">
+                  <img src="../static/img/arrow_icon.png" style="width: 50%; margin:15% auto;">
+                 <label for="value" style="color:grey;display: block;" ><strong>보낼 금액:</strong></label>
+                 <input type="text" class="form-control" id="value" style="margin:0 auto;width:100%;">
+               </div>
+
+               <div class="form-group" id="receiver_container" style="padding-top:3%;">
+                 <label for="receiverAddress" style="color:grey;" ><strong>받는사람 주소:</strong></label>
+                 <input type="text" class="form-control" id="receiverAddress" style="width:100%;">
+               </div>
+            </div>
+
+           <div class="form-group" id="txhash_container" style="float:left;width:100%;">
+             <button type="button" class="btn btn-primary" id="transaction_btn" style="display:block; margin:3% auto;margin-bottom:3%;width:30%;">보내기</button>
              <label for="txhash" style="color:grey;display:block;" ><strong>Transaction Hash값:</strong></label>
              <span id="txhash"></span>
            </div>
-         </form>
+
           </div>
         </div>
       </div>
@@ -357,6 +588,89 @@
          </form>
       </div>
     </section>
+
+
+    <!-- Mytransaction card -->
+    <section id="transactioncheck">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12 text-center">
+            <h2 class="section-heading">My Transaction</h2>
+            <hr class="my-4">
+          </div>
+        </div>
+      </div>
+      <!-- transaction part -->
+      <div class="container" id="mytransaction">
+        <div class="row">
+          <div class="col-lg-12 text-center">
+           <div class="form-group" id="mytransaction_hash_container" style="width:100%;">
+             <label for="mytransaction_hash" style="width:20%;color:grey;margin-bottom:1%;"><strong>Transaction Hash값: </strong></label>
+             <input type="text" class="form-control" id="mytransaction_hash" style="margin:0 auto;width:60%;">
+           </div>
+              <button type="button" class="btn btn-primary" id="mytransaction_btn" style="margin-top:1%;margin-bottom:2%;width:20%;">조 회</button>
+           <br>
+           <div class="form-group" id="mytransaction_info" style="margin-top:1%;">
+             <label for="blockhash" style="color:grey;display:block;" ><strong>?</strong></label>
+           </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- My Block card -->
+    <section>
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12 text-center">
+            <h2 class="section-heading">My Block</h2>
+            <hr class="my-4">
+          </div>
+        </div>
+      </div>
+      <!-- My Block part -->
+      <div class="container" id="myblock">
+        <div class="row">
+          <div class="col-lg-12 text-center">
+           <div class="form-group" id="myblock_hash_container" style="width:100%;">
+             <label for="myblock_hash" style="width:20%;color:grey;margin-bottom:1%;"><strong>Block Hash 값: </strong></label>
+             <input type="text" class="form-control" id="myblock_hash" style="margin:0 auto;width:60%;">
+           </div>
+              <button type="button" class="btn btn-primary" id="myblock_btn" style="margin-top:1%;margin-bottom:2%;width:20%;">조 회</button>
+           <br>
+           <div class="form-group" id="myblock_info" style="margin-top:1%;">
+             <label for="myblock" style="color:grey;display:block;" ><strong>?</strong></label>
+           </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- All Block card -->
+    <section class="bg-dark text-white" >
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12 text-center">
+            <h2 class="section-heading">All Block</h2>
+            <hr class="my-4">
+          </div>
+        </div>
+      </div>
+      <!-- My Block part -->
+      <div class="container" id="allblock">
+        <div class="row">
+          <div class="col-lg-12 text-center">
+              <button type="button" class="btn btn-light btn-xl js-scroll-trigger" id="allblock_btn" style="width:15%; margin-top:1%; margin-bottom:3%">모든 블록 보기</button>
+           <div class="form-group" id="allblock_info" style="width:100%;">
+             <label for="myblock_hash" style="width:20%;color:grey;margin-top:1%;"><strong>Block Hash 값: </strong></label>
+           </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
 
     <section id="">
       <div class="container">
