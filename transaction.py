@@ -27,6 +27,14 @@ class TxIn:
     def __eq__(self, other):
         return self.hash == other.hash and self.n == other.n
 
+    def mystr(self):
+        return json.dumps(self, default=self.to_mydict, sort_keys=True, indent=4)
+
+    def to_mydict(self,_):
+        if '__dict__' not in dir(_):
+            return str(_)
+        return copy.deepcopy(_.__dict__)
+
 class TxOut:
     def __init__(self, receiver_address, value):
         self.to = receiver_address #받는놈 주소
@@ -43,7 +51,7 @@ class TxOut:
 
 
 class Transaction:
-    def __init__(self, chain, value, receiver_address, sender_address=None, sender_private_key=None):
+    def __init__(self, blockchain, value, receiver_address, sender_address=None, sender_private_key=None):
         self.vin_sz = 0
         self.vout_sz = 0
         self.inputs = []
@@ -59,7 +67,7 @@ class Transaction:
             return
 
         utxo_list = []
-        for block in chain:
+        for block in blockchain.chain:
             for tx in block.transactions:
                 for i in range(len(tx.outputs)):
                     if sender_address == tx.outputs[i].to:
@@ -69,9 +77,20 @@ class Transaction:
                         if tx.inputs[i].hash == utxo[0] and tx.inputs[i].n == utxo[1] and tx.inputs[i].address == utxo[2] and tx.inputs[i].value == utxo[3]:
                             utxo_list.remove((tx.inputs[i].hash, tx.inputs[i].n, tx.inputs[i].address, tx.inputs[i].value))
 
+        for tx in blockchain.tx_pool:
+            for i in range(len(tx.inputs)):
+                for utxo in utxo_list:
+                    if tx.inputs[i].hash == utxo[0] and tx.inputs[i].n == utxo[1] and tx.inputs[i].address == utxo[2] and tx.inputs[i].value == utxo[3]:
+                        utxo_list.remove((tx.inputs[i].hash, tx.inputs[i].n, tx.inputs[i].address, tx.inputs[i].value))
+
         total_utxo_value = 0
+        i = 0
         for utxo in utxo_list:
             total_utxo_value += utxo[3]
+            i += 1
+            if total_utxo_value >= value:
+                utxo_list = utxo_list[:i]
+                break
 
         if total_utxo_value < value:
             raise Exception("잔액 부족")
@@ -127,3 +146,11 @@ class Transaction:
         if "hash" in temp:
             del temp['hash']
         return temp
+
+    def mystr(self):
+        return json.dumps(self, default=self.to_mydict, sort_keys=True, indent=4)
+
+    def to_mydict(self,_):
+        if '__dict__' not in dir(_):
+            return str(_)
+        return copy.deepcopy(_.__dict__)
