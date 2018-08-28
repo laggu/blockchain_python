@@ -69,13 +69,13 @@ class Transaction:
         utxo_list = []
         for block in blockchain.chain:
             for tx in block.transactions:
-                for i in range(len(tx.outputs)):
-                    if sender_address == tx.outputs[i].to:
-                        utxo_list.append((tx.hash, i, tx.outputs[i].to, tx.outputs[i].value))
                 for i in range(len(tx.inputs)):
                     for utxo in utxo_list:
                         if tx.inputs[i].hash == utxo[0] and tx.inputs[i].n == utxo[1] and tx.inputs[i].address == utxo[2] and tx.inputs[i].value == utxo[3]:
                             utxo_list.remove((tx.inputs[i].hash, tx.inputs[i].n, tx.inputs[i].address, tx.inputs[i].value))
+                for i in range(len(tx.outputs)):
+                    if sender_address == tx.outputs[i].to:
+                        utxo_list.append((tx.hash, i, tx.outputs[i].to, tx.outputs[i].value))
 
         for tx in blockchain.tx_pool:
             for i in range(len(tx.inputs)):

@@ -19,7 +19,7 @@ class BlockChain:
 
     def make_transaction(self, value, receiver_address, sender_address, sender_private_key):
         try:
-            transaction = Transaction(self.chain, value, receiver_address, sender_address, sender_private_key)
+            transaction = Transaction(self, value, receiver_address, sender_address, sender_private_key)
         except Exception as e:
             return str(e)
         self.tx_pool.append(transaction)
@@ -27,7 +27,7 @@ class BlockChain:
 
     def mining(self, miner_address):
         tx_list = self.tx_pool
-        tx_list.insert(0, Transaction(self.chain, self.reward, miner_address))
+        tx_list.insert(0, Transaction(self, self.reward, miner_address))
         self.tx_pool = []
         new_block = Block(self.chain[-1].hash, self.bits, tx_list)
         try:
@@ -41,13 +41,13 @@ class BlockChain:
         utxo_list = []
         for block in self.chain:
             for tx in block.transactions:
-                for i in range(len(tx.outputs)):
-                    if address == tx.outputs[i].to:
-                        utxo_list.append((tx.hash, i, tx.outputs[i].to, tx.outputs[i].value))
                 for i in range(len(tx.inputs)):
                     for utxo in utxo_list:
                         if tx.inputs[i].hash == utxo[0] and tx.inputs[i].n == utxo[1] and tx.inputs[i].address == utxo[2] and tx.inputs[i].value == utxo[3]:
                             utxo_list.remove((tx.inputs[i].hash, tx.inputs[i].n, tx.inputs[i].address, tx.inputs[i].value))
+                for i in range(len(tx.outputs)):
+                    if address == tx.outputs[i].to:
+                        utxo_list.append((tx.hash, i, tx.outputs[i].to, tx.outputs[i].value))
 
         return utxo_list
 
