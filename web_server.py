@@ -7,9 +7,11 @@ app = Flask(__name__)
 
 blockChain = BlockChain()
 
+
 @app.route('/')
 def index():
     return render_template('index.html')
+
 
 # 키 생성
 @app.route('/generatekey')
@@ -19,11 +21,12 @@ def generatekey():
     mypubl = bitcoin.privkey_to_pubkey(mypriv)
     myaddress = bitcoin.pubkey_to_address(mypubl)
     myInfo = {
-        'mypriv' : mypriv,
-        'mypubl' : mypubl,
-        'myaddress' : myaddress
+        'mypriv': mypriv,
+        'mypubl': mypubl,
+        'myaddress': myaddress
     }
     return json.dumps(myInfo)
+
 
 # 블록 마이닝
 @app.route('/mining')
@@ -34,8 +37,9 @@ def mining():
     blockHash = {
         'blockhash': block_hash
     }
-    
+
     return json.dumps(blockHash)
+
 
 # transaction 생성
 @app.route('/transaction')
@@ -51,30 +55,53 @@ def transaction():
     }
     return json.dumps(txHash)
 
+
 # 잔액 조회
 @app.route('/balance')
 def balance():
     address = request.args.get('balance')
     balance = {
-        'balance' : blockChain.get_balance(address)
+        'balance': blockChain.get_balance(address)
     }
     return json.dumps(balance)
+
 
 # 블록 조회
 @app.route('/checkBlock')
 def checkBlock():
-    blockHash = request.args.get('blockHash')
+    blockHash = request.args.get('myblock_hash')
+    blockJ = {}
     for block in blockChain.chain:
         if block.hash == blockHash:
-            return str(block)
+            blockJ['block'] = block.mystr()
+            return json.dumps(blockJ)
+    blockJ['block'] = '블록 탐색 실패'
+    return json.dumps(blockJ)
+
 
 # 트랜잭션 조회
 @app.route('/checkTransaction')
 def checkTransaction():
-    transactionHash = request.args.get('transactionHash')
+    transactionHash = request.args.get('mytransaction_hash')
+    transactionJ = {}
     for block in blockChain.chain:
         for tx in block.transactions:
-            if tx.hash -- transactionHash:
-                return str(tx)
+            if tx.hash == transactionHash:
+                transactionJ['transaction'] = tx.mystr()
+                return json.dumps(transactionJ)
+    transactionJ['transaction'] = '트랜잭션 탐색 실패'
+    return json.dumps(transactionJ)
 
-app.run(host='localhost', port = 9000)
+
+# 블록 전체 조회
+@app.route('/checkAllBlock')
+def checkAllBlock():
+    blocks = {}
+    for i in range(len(blockChain.chain)):
+        blocks[i] = blockChain.chain[i].mystr()
+    blocks['n'] = len(blockChain.chain)
+    print(blocks)
+    return json.dumps(blocks)
+
+
+app.run(host='localhost', port=9000)
